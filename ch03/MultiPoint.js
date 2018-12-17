@@ -48,6 +48,9 @@ function main() {
 
   var n = initVertexBuffers(gl, 0.5);
   gl.drawArrays(gl.POINTS, 0, n);
+
+  var n = initVertexBuffers(gl, 0.75);
+  gl.drawArrays(gl.POINTS, 0, n);
 }
 
 function initVertexBuffers(gl, scale) {
