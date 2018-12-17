@@ -64,49 +64,141 @@ function main() {
 
   // Calculate the view projection matrix
   var viewProjMatrix = new Matrix4();
-  viewProjMatrix.setPerspective(50.0, canvas.width / canvas.height, 1.0, 100.0);
-  var zoom = 1;
-  viewProjMatrix.lookAt(20.0*zoom, 10.0*zoom, 30.0*zoom, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+  var eyeX = 0.0, eyeY= 0.0, eyeZ= 1.0;
+  var phi=90.0, theta=90.0;
+  var zoomScale = 100;
+  var sphVec = sphericalVector(phi, theta);
+  console.log('sphVec', sphVec);
+  eyeX = sphVec[0]; eyeY = sphVec[2]; eyeZ = sphVec[1];
+  viewProjMatrix.setPerspective(50.0, canvas.width / canvas.height, 1.0, 1000.0);
+  viewProjMatrix.lookAt(eyeX*zoomScale, eyeY*zoomScale, eyeZ*zoomScale, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+  console.log('viewProjMatrix', viewProjMatrix.elements);
 
   // Register the event handler to be called when keys are pressed
-  document.onkeydown = function(ev){ keydown(ev, gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix, zoom); };
+  document.onkeydown = function(ev){ keydown(ev, gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix); };
 
-  draw(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix);  // Draw the robot arm
+  draw(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix);  // Draw the robot arm //여기선 zoom var 없어도 될듯한데..
+
+
+  function keydown(ev, gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix) {
+    if(ev.keyCode == 38 && ev.shiftKey) { // The up arrow key was pressed
+        theta -= 5
+        console.log('theta', theta);
+        var sphVec = sphericalVector(phi, theta);
+        console.log('sphVec', sphVec);
+        eyeX = sphVec[0]; eyeY = sphVec[2]; eyeZ = sphVec[1];
+        console.log('eyeX ...', eyeX, eyeY, eyeZ);
+        viewProjMatrix.setPerspective(50.0, canvas.width / canvas.height, 1.0, 1000.0);
+        viewProjMatrix.lookAt(eyeX*zoomScale, eyeY*zoomScale, eyeZ*zoomScale, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        //viewProjMatrix.elements[14] = 98;
+        //viewProjMatrix.elements[15] = 100;
+        console.log('shift and up');
+        console.log('viewProjMatrix', viewProjMatrix.elements);
+    } else 
+    
+    if(ev.keyCode == 40 && ev.shiftKey) { // The down arrow key was pressed
+        theta += 5
+        console.log('theta', theta);
+        var sphVec = sphericalVector(phi, theta);
+        eyeX = sphVec[0]; eyeY = sphVec[2]; eyeZ = sphVec[1];
+        console.log('eyeX ...', eyeX, eyeY, eyeZ);
+        viewProjMatrix.setPerspective(50.0, canvas.width / canvas.height, 1.0, 1000.0);
+        viewProjMatrix.lookAt(eyeX*zoomScale, eyeY*zoomScale, eyeZ*zoomScale, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        //viewProjMatrix.elements[14] = 98;
+        //viewProjMatrix.elements[15] = 100;
+        console.log('shift and down');
+        console.log('viewProjMatrix', viewProjMatrix.elements);
+    } else 
+    
+    if(ev.keyCode == 39 && ev.shiftKey) { // The right arrow key was pressed
+        phi += 5
+        console.log('phi', phi);
+        var sphVec = sphericalVector(phi, theta);
+        eyeX = sphVec[0]; eyeY = sphVec[2]; eyeZ = sphVec[1];
+        console.log('eyeX ...', eyeX, eyeY, eyeZ);
+
+        viewProjMatrix.setPerspective(50.0, canvas.width / canvas.height, 1.0, 1000.0);
+        viewProjMatrix.lookAt(eyeX*zoomScale, eyeY*zoomScale, eyeZ*zoomScale, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        console.log('viewProjMatrix', viewProjMatrix.elements);
+    } else 
+    
+    if(ev.keyCode == 37 && ev.shiftKey) { // The left arrow key was pressed
+        phi -= 5
+        console.log('phi', phi);
+        var sphVec = sphericalVector(phi, theta);
+        eyeX = sphVec[0]; eyeY = sphVec[2]; eyeZ = sphVec[1];
+        console.log('eyeX ...', eyeX, eyeY, eyeZ);
+        viewProjMatrix.setPerspective(50.0, canvas.width / canvas.height, 1.0, 1000.0);
+        viewProjMatrix.lookAt(eyeX*zoomScale, eyeY*zoomScale, eyeZ*zoomScale, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        console.log('viewProjMatrix', viewProjMatrix.elements);
+    } else 
+
+    if(ev.keyCode == 187 && ev.shiftKey) { // The right arrow key was pressed
+        zoomScale += 1
+        viewProjMatrix.setPerspective(50.0, canvas.width / canvas.height, 1.0, 1000.0);
+        viewProjMatrix.lookAt(eyeX*zoomScale, eyeY*zoomScale, eyeZ*zoomScale, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        console.log('eyeX ...', eyeX, eyeY, eyeZ);
+        console.log('viewProjMatrix', viewProjMatrix.elements);
+        //draw(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix);
+
+    } else 
+    if(ev.keyCode == 187) { // The right arrow key was pressed
+        zoomScale -= 1
+        viewProjMatrix.setPerspective(50.0, canvas.width / canvas.height, 1.0, 1000.0);
+        viewProjMatrix.lookAt(eyeX*zoomScale, eyeY*zoomScale, eyeZ*zoomScale, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        console.log('eyeX ...', eyeX, eyeY, eyeZ);
+
+        console.log('viewProjMatrix', viewProjMatrix.elements);
+        //draw(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix);
+
+    } else
+
+
+        
+
+    if(ev.keyCode == 38) { // The up key was pressed
+      console.log('u');
+      if (g_joint1Angle < 135.0) g_joint1Angle += ANGLE_STEP;
+
+      // return rotated g_eye's with axis ec x u 
+      // return rotated up's with axis ec x u 
+    } else 
+
+    if(ev.keyCode == 40) { // The down key was pressed
+      console.log('d');
+      if (g_joint1Angle > -135.0) g_joint1Angle -= ANGLE_STEP;
+
+      //modelMatrix.translate(0,-0.01, 0);
+      //gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+      // return rotated g_eye's with axis ec x u 
+      // return rotated up's with axis ec x u 
+      
+    } else 
+
+    if(ev.keyCode == 39) { // The right arrow key was pressed
+      console.log('r');
+      // return rotated g_eye's with axis up's
+      //g_eyeX += 0.01;
+
+    } else 
+    if (ev.keyCode == 37) { // The left arrow key was pressed
+      console.log('l');
+      // return rotated g_eye's with axis up's
+      //g_eyeX -= 0.01;
+    } else { return; }
+
+
+    draw(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix);
+
+    }
 }
 
 var ANGLE_STEP = 3.0;    // The increments of rotation angle (degrees)
 var g_arm1Angle = -90.0; // The rotation angle of arm1 (degrees)
 var g_joint1Angle = 0.0; // The rotation angle of joint1 (degrees)
+var zoom = 1.0;
 
-function keydown(ev, gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix, zoom) {
-  switch (ev.keyCode) {
-    case 38: // Up arrow key -> the positive rotation of joint1 around the z-axis
-      if (g_joint1Angle < 135.0) g_joint1Angle += ANGLE_STEP;
-      break;
-    case 40: // Down arrow key -> the negative rotation of joint1 around the z-axis
-      if (g_joint1Angle > -135.0) g_joint1Angle -= ANGLE_STEP;
-      break;
-    case 39: // Right arrow key -> the positive rotation of arm1 around the y-axis
-      g_arm1Angle = (g_arm1Angle + ANGLE_STEP) % 360;
-      break;
-    case 37: // Left arrow key -> the negative rotation of arm1 around the y-axis
-      g_arm1Angle = (g_arm1Angle - ANGLE_STEP) % 360;
-      break;
-    case 64 +1: // Left arrow key -> the negative rotation of arm1 around the y-axis
-      zoom += 0.01
-      console.log('zoom', zoom);
-      break;
 
-    case 64 +26: // Left arrow key -> the negative rotation of arm1 around the y-axis
-      zoom -= 0.01
-      console.log('zoom', zoom);
-      break;
-
-    default: return; // Skip drawing at no effective action
-  }
-  // Draw the robot arm
-  draw(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix);
-}
 
 function initVertexBuffers(gl) {
   // Vertex coordinates（a cuboid 3.0 in width, 10.0 in height, and 3.0 in length with its origin at the center of its bottom)
@@ -200,13 +292,14 @@ function draw(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix) {
   g_modelMatrix.translate(0.0, arm1Length, 0.0); 　　　// Move to joint1
   g_modelMatrix.rotate(g_joint1Angle, 0.0, 0.0, 1.0);  // Rotate around the z-axis
   g_modelMatrix.scale(1.3, 1.0, 1.3); // Make it a little thicker
-  drawBox(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix); // Draw
+  drawBox(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix, zoom); // Draw
 }
 
 var g_normalMatrix = new Matrix4(); // Coordinate transformation matrix for normals
 console.log('g_modelMatrix is callable outmost field?', g_modelMatrix);
+// 이 객체는 outmost field에서 선언되었었네.
 // Draw the cube
-function drawBox(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix) {
+function drawBox(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix, zoom) {
   // Calculate the model view project matrix and pass it to u_MvpMatrix
   g_mvpMatrix.set(viewProjMatrix);
   g_mvpMatrix.multiply(g_modelMatrix);
@@ -218,3 +311,63 @@ function drawBox(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix) {
   // Draw
   gl.drawElements(gl.TRIANGLES, n, gl.UNSIGNED_BYTE, 0);
 }
+
+
+    
+    /*
+    switch (ev.keyCode) {
+      case 38: // Up arrow key -> the positive rotation of joint1 around the z-axis
+        if (g_joint1Angle < 135.0) g_joint1Angle += ANGLE_STEP;
+        break;
+      case 40: // Down arrow key -> the negative rotation of joint1 around the z-axis
+        if (g_joint1Angle > -135.0) g_joint1Angle -= ANGLE_STEP;
+        break;
+      case 39: // Right arrow key -> the positive rotation of arm1 around the y-axis
+        g_arm1Angle = (g_arm1Angle + ANGLE_STEP) % 360;
+        break;
+      case (37& 64 +24): // Left arrow key -> the negative rotation of arm1 around the y-axis
+        g_arm1Angle = (g_arm1Angle - ANGLE_STEP) % 360;
+        break;
+      case 187://187 is = key
+        //zoom += 0.0001
+        eyeZ += 1
+        viewProjMatrix.setPerspective(50.0, canvas.width / canvas.height, 1.0, 1000.0);
+        viewProjMatrix.lookAt(eyeX, eyeY, eyeZ, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        console.log('viewProjMatrix', viewProjMatrix.elements);
+        //viewProjMatrix.lookAt(0, 0, 5, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        //viewProjMatrix.setLookAt(0.1, 0, 0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        //console.log('zoom', zoom);
+        console.log('viewProjMatrix', viewProjMatrix.elements);
+        break;
+      
+      case (16 && 187)://187 is = key
+        //zoom += 0.0001
+        eyeZ += 1
+        viewProjMatrix.setPerspective(50.0, canvas.width / canvas.height, 1.0, 1000.0);
+        viewProjMatrix.lookAt(eyeX, eyeY, eyeZ, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        //viewProjMatrix.lookAt(0, 0, 5, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        //viewProjMatrix.setLookAt(0.1, 0, 0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        //console.log('zoom', zoom);
+        console.log('viewProjMatrix', viewProjMatrix.elements);
+        break;
+    }
+    */
+    /*  case 16: // Left arrow key -> the negative rotation of arm1 around the y-axis
+        //zoom -= 0.0001
+        if (ev.keyCode == 187) {
+            eyeZ -= 1
+            viewProjMatrix.setPerspective(50.0, canvas.width / canvas.height, 1.0, 1000.0);
+            viewProjMatrix.lookAt(eyeX, eyeY, eyeZ, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+            //viewProjMatrix.setPerspective(50.0, canvas.width / canvas.height, 1.0, 100.0)
+            //viewProjMatrix.setLookAt(-5, 0, 0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+           // viewProjMatrix.lookAt(20.0*zoom, 10.0*zoom, 30.0*zoom, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+            //console.log('zoom', zoom);
+            console.log('viewProjMatrix', viewProjMatrix.elements);
+        }
+        */
+     //   break;
+
+      //default: return; // Skip drawing at no effective action
+     
+    //}
+    // Draw the robot arm
