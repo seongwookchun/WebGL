@@ -1,5 +1,27 @@
 // RotatingTriangle.js (c) 2012 matsuda
 // Vertex shader program
+/*
+var VSHADER_SOURCE =
+  'attribute vec4 a_Position;\n' +
+  'attribute vec4 a_Color;\n' +
+  'uniform mat4 u_ViewMatrix;\n' +
+  'varying vec4 v_Color;\n' +
+  'void main() {\n' +
+  '  gl_Position = u_ViewMatrix * a_Position;\n' +
+  '  v_Color = a_Color;\n' +
+  '}\n';
+
+// Fragment shader program
+var FSHADER_SOURCE =
+  '#ifdef GL_ES\n' +
+  'precision mediump float;\n' +
+  '#endif\n' +
+  'varying vec4 v_Color;\n' +
+  'void main() {\n' +
+  '  gl_FragColor = v_Color;\n' +
+  '}\n';
+
+
 var VSHADER_SOURCE =
   'attribute vec4 a_Position;\n' +
   'varying vec4 u_TotTransVec;\n' +
@@ -12,6 +34,28 @@ var VSHADER_SOURCE =
   'void main() {\n' +
   '  u_TotTransVec = u_TotTransVec + u_TempTransVec;\n' +
   '  gl_Position = u_ModelMatrix * a_Position + u_TransMatrix * vec4(1.0, 1.0, 1.0, 1.0);\n' +
+  '  v_Color = a_Color;\n' +
+  '  gl_PointSize = 10.0;\n' +
+
+
+  '}\n';
+*/
+var VSHADER_SOURCE =
+  'attribute vec4 a_Position;\n' +
+  'varying vec4 u_TotTransVec;\n' +
+  'varying vec4 u_TempTransVec;\n' +
+  'uniform mat4 u_ModelMatrix;\n' +
+  'uniform mat4 u_TransMatrix;\n' +
+  
+  'uniform mat4 u_ViewMatrix;\n' +
+
+  'attribute vec4 a_Color;\n' +
+  'varying vec4 v_Color;\n' +
+  'void main() {\n' +
+  '  u_TotTransVec = u_TotTransVec + u_TempTransVec;\n' +
+  //'  gl_Position = u_ViewMatrix * (u_ModelMatrix * a_Position + u_TransMatrix * vec4(1.0, 1.0, 1.0, 1.0) );\n' +
+  '  gl_Position = (u_ModelMatrix * a_Position + u_TransMatrix * vec4(1.0, 1.0, 1.0, 1.0) );\n' +
+
   '  v_Color = a_Color;\n' +
   '  gl_PointSize = 10.0;\n' +
 
@@ -106,55 +150,54 @@ function main() {
   document.onkeydown = function(ev){ keydown(ev, gl, n); };
   //var steerAngle = 0.0
   // Start drawing
-  function keydown(ev, gl, n,) {
-                 //totTransMatrix, modelMatrix, transMatrix) {
-  //currentAngle = animate(currentAngle);
-  //console.log('currentAngle', currentAngle);
-  //modelMatrix.setRotate(currentAngle, 0, 0, 1);
-  
-  if(ev.keyCode == 38) { // The right up key was pressed
-    //tempMatrix = modelMatrix;
-    tempMatrix.setRotate(currentAngle, 0, 0, 1);
-    tempMatrix.translate(0, 0.25, 0);
-    //console.log('currentAngle', currentAngle);
-    //console.log(tempMatrix);
-    //var tempSumMatrix = matrixAdd(totTransMatrix, tempMatrix);
-    //var tempSumMatrix = matrixAdd(totTransMatrix, tempMatrix);
-    //tempSumMatrix = matrixAdd(totTransMatrix, totTransMatrix);
-    
-    tempSumMatrix = matrixAdd(totTransMatrix, totTransMatrix);
-    console.log('type of tempSumMatrix', typeof(tempSumMatrix));
-    totTransMatrix = tempSumMatrix; 
-    console.log('totTransMatrix added');
-    console.log(totTransMatrix);
-    //modelMatrix.setRotate(currentAngle, 0, 0, 1);
+  var g_eyeX = 0.20, g_eyeY = 0.25, g_eyeZ = 0.25; // Eye position
+  var centerX = 0.0, centerY = 0.0, centerZ = 0.0;
+  var upX = 0.0, upY = 1.0, upZ = 0.0;
+  function keydown(ev, gl, n, u_ViewMatrix, viewMatrix) {
+      if(ev.keyCode == 38) { // The up key was pressed
+        console.log('u');
+        // return rotated g_eye's with axis ec x u 
+        // return rotated up's with axis ec x u 
+      } else 
+
+      if(ev.keyCode == 40) { // The down key was pressed
+        console.log('d');
+        // return rotated g_eye's with axis ec x u 
+        // return rotated up's with axis ec x u 
+
+      } else 
+
+      if(ev.keyCode == 39) { // The right arrow key was pressed
+        console.log('r');
+        // return rotated g_eye's with axis up's
+        g_eyeX += 0.01;
+
+      } else 
+      if (ev.keyCode == 37) { // The left arrow key was pressed
+        console.log('l');
+        // return rotated g_eye's with axis up's
+        g_eyeX -= 0.01;
+      } else { return; }
+
+      draw(gl, n, u_ViewMatrix, viewMatrix);    
+
+  }
+
+  function draw(gl, n, u_ViewMatrix, viewMatrix) {
+    // Set the matrix to be used for to set the camera view
+    viewMatrix.setLookAt(g_eyeX, g_eyeY, g_eyeZ, 0, 0, 0, 0, 1, 0);
+
+    // Pass the view projection matrix
+    gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
+
+    gl.clear(gl.COLOR_BUFFER_BIT);     // Clear <canvas>
+
+    gl.drawArrays(gl.TRIANGLES, 0, n); // Draw the rectangle
+  }
 
 
-    console.log('u');
-    //console.log(tempMatrix.multiply(tempMatrix));
-    //totTransMatrix = totTransMatrix + modelMatrix * transMatrix;
-    //console.log(tempMatrix);
-  } else 
-
-  if(ev.keyCode == 40) { // The right down key was pressed
-    gl.uniformMatrix4fv(u_TempTransVec, false, tempTransVec.elements);
-    console.log('d');
-  } else 
-
-  if(ev.keyCode == 39) { // The right arrow key was pressed
-    console.log('r');
-    steerAngle -= (5.0);
-    console.log('steerAngle', steerAngle, typeof(steerAngle));
-
-  } else 
-  if (ev.keyCode == 37) { // The left arrow key was pressed
-    console.log('left');
-    steerAngle += (5.0);
-    console.log('steerAngle', steerAngle);
-
-  } else { return; }
   //draw(gl, n, u_ViewMatrix, viewMatrix);    
-}
+
   gl.clear(gl.COLOR_BUFFER_BIT);
   draw(gl, n, currentAngle, modelMatrix, u_ModelMatrix);   // Draw the triangle  
 
@@ -169,9 +212,7 @@ function main() {
     requestAnimationFrame(tick, canvas); // Request that the browser calls tick
   };
   tick();
-  
-  
-  
+
 }
 var modelMatrix = new Matrix4();
 var transMatrix = new Matrix4();
@@ -338,3 +379,8 @@ console.log('A+A', matrixAdd(matrixA,matrixA));
 console.log('B+B', matrixAdd(matrixB,matrixB).elements);
 
 //console.log('e call from local assignment', e);
+
+
+
+
+

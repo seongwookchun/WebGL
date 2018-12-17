@@ -1,10 +1,12 @@
 // MultiAttributeSize_Interleaved.js (c) 2012 matsuda
 // Vertex shader program
+
+// 연습::: color 에 관한 variable 설정을 어떻게 해야할 까??
 var VSHADER_SOURCE =
   'attribute vec4 a_Position;\n' +
   'attribute float a_PointSize;\n' +
   'attribute vec4 a_Color;\n' + // varying variable
-
+  
   'void main() {\n' +
   '  gl_Position = a_Position;\n' +
   '  gl_PointSize = a_PointSize;\n' +
@@ -19,9 +21,9 @@ var FSHADER_SOURCE =
   
   'precision mediump float;\n' + // Precision qualifier (See Chapter 6)
   '#endif\n' +
-  'varying vec4 a_Color;\n' +    // Receive the data from the vertex shader
+  'varying vec4 v_Color;\n' +    // Receive the data from the vertex shader
   'void main() {\n' +
-  '  gl_FragColor = a_Color;\n' +
+  '  gl_FragColor = v_Color;\n' +
   '}\n';
 function main() {
   // Retrieve <canvas> element
@@ -133,3 +135,22 @@ function initVertexBuffers(gl) {
   
   return n;
 }
+
+
+
+
+
+/*
+var VSHADER_SOURCE =
+  'attribute vec4 a_Position;\n' +
+  'attribute float a_PointSize;\n' +
+  'attribute vec4 a_Color;\n' + // varying variable
+  'varying vec4 v_Color;\n' +
+  
+  'void main() {\n' +
+  '  gl_Position = a_Position;\n' +
+  '  gl_PointSize = a_PointSize;\n' +
+  '  v_Color = a_Color;\n' +
+  '}\n';
+
+*/
