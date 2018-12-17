@@ -71,16 +71,12 @@ function main() {
   gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
   gl.uniformMatrix4fv(u_ProjMatrix, false, projMatrix.elements);
 
-  gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
 
-  gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles
+  draw(gl, n, modelMatrix, u_ModelMatrix);
 
-  // Prepare the model matrix for another pair of triangles
-  modelMatrix.setTranslate(0.75, 0, -0.5); // Translate 0.75 units along the negative x-axis
-  // Modify only the model matrix
-  gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+  document.onkeydown = function(ev){ keydown(ev, gl, n, u_ViewMatrix, viewMatrix); };
 
-  gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles
+  
 }
 
 function initVertexBuffers(gl) {
@@ -133,4 +129,47 @@ function initVertexBuffers(gl) {
   gl.enableVertexAttribArray(a_Color);
 
   return n;
+}
+
+
+
+function draw(gl, n, modelMatrix, u_ModelMatrix) {
+  gl.clear(gl.COLOR_BUFFER_BIT);   // Clear <canvas>
+
+  gl.drawArrays(gl.TRIANGLES, 0, n);   // Draw the triangles
+    
+}
+
+
+var g_eyeX = 0.20, g_eyeY = 0.25, g_eyeZ = 0.25; // Eye position
+var centerX = 0.0, centerY = 0.0, centerZ = 0.0;
+var upX = 0.0, upY = 1.0, upZ = 0.0;
+function keydown(ev, gl, n, modelMatrix, u_ModelMatrix) {
+    if(ev.keyCode == 38) { // The up key was pressed
+      console.log('u');
+      // return rotated g_eye's with axis ec x u 
+      // return rotated up's with axis ec x u 
+    } else 
+
+    if(ev.keyCode == 40) { // The down key was pressed
+      console.log('d');
+      // return rotated g_eye's with axis ec x u 
+      // return rotated up's with axis ec x u 
+      
+    } else 
+
+    if(ev.keyCode == 39) { // The right arrow key was pressed
+      console.log('r');
+      // return rotated g_eye's with axis up's
+      g_eyeX += 0.01;
+
+    } else 
+    if (ev.keyCode == 37) { // The left arrow key was pressed
+      console.log('l');
+      // return rotated g_eye's with axis up's
+      g_eyeX -= 0.01;
+    } else { return; }
+    
+    draw(gl, n, modelMatrix, u_ModelMatrix);
+
 }

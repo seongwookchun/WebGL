@@ -2,8 +2,12 @@
 // Vertex shader program
 var VSHADER_SOURCE =
   'attribute vec4 a_Position;\n' +
+  'attribute vec4 a_Color;\n' +
+  'uniform mat4 u_ModelMatrix;\n' +
+  'uniform mat4 u_ViewMatrix;\n' +
+  'uniform mat4 u_ProjMatrix;\n' +
   'void main() {\n' +
-  '  gl_Position = a_Position;\n' +
+  '  gl_Position = u_ProjMatrix * u_ViewMatrix * u_ModelMatrix * a_Position;\n' +
   '  gl_PointSize = 10.0;\n' +
   '}\n';
 
@@ -23,7 +27,7 @@ function main() {
     console.log('Failed to get the rendering context for WebGL');
     return;
   }
-
+  
   // Initialize shaders
   if (!initShaders(gl, VSHADER_SOURCE, FSHADER_SOURCE)) {
     console.log('Failed to intialize shaders.');
@@ -31,7 +35,7 @@ function main() {
   }
 
   // Write the positions of vertices to a vertex shader
-  var n = initVertexBuffers(gl);
+  var n = initVertexBuffers(gl, 0.25);
   if (n < 0) {
     console.log('Failed to set the positions of the vertices');
     return;
@@ -39,17 +43,38 @@ function main() {
 
   // Specify the color for clearing <canvas>
   gl.clearColor(0, 0, 0, 1);
+  var u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
+  var u_ViewMatrix = gl.getUniformLocation(gl.program, 'u_ViewMatrix');
+  var u_ProjMatrix = gl.getUniformLocation(gl.program, 'u_ProjMatrix');
 
-  // Clear <canvas>
-  gl.clear(gl.COLOR_BUFFER_BIT);
 
-  // Draw three points
-  gl.drawArrays(gl.POINTS, 0, n);
+  var modelMatrix = new Matrix4(); // The model matrix
+  var viewMatrix = new Matrix4();  // The view matrix
+  var projMatrix = new Matrix4();  // The projection matrix
+
+  // Calculate the view matrix and the projection matrix
+  modelMatrix.setTranslate(0.75, 0, 0);  // Translate 0.75 units along the positive x-axis
+  viewMatrix.setLookAt(0, 0, 5, 0, 0, -100, 0, 1, 0);
+  projMatrix.setPerspective(30, canvas.width/canvas.height, 1, 100);
+  // Pass the model, view, and projection matrix to the uniform variable respectively
+  gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+  gl.uniformMatrix4fv(u_ViewMatrix, false, viewMatrix.elements);
+  gl.uniformMatrix4fv(u_ProjMatrix, false, projMatrix.elements);
+
+
+  document.onkeydown = function(ev){ keydown(ev, gl, n, modelMatrix, u_ModelMatrix); };
+
+  draw(gl, n, modelMatrix, u_ModelMatrix);
 }
 
-function initVertexBuffers(gl) {
+function initVertexBuffers(gl, scale) {
   var vertices = new Float32Array([
-    0.0, 0.5,   -0.5, -0.5,   0.5, -0.5
+    0.0 * scale,  0.5 * scale,   
+   -0.5 * scale, -0.5 * scale,   
+    0.5 * scale, -0.5 * scale,
+    1.0, 0.0, 0.0,
+    1.0, 0.0, 0.0,
+    1.0, 0.0, 0.0,
   ]);
   var n = 3; // The number of vertices
 
@@ -79,84 +104,51 @@ function initVertexBuffers(gl) {
   return n;
 }
 
-function vecAdd(A,B) {
-  var a, b, e, f
-  f = new Vector4(4);
-  e = f.elements;
-  a = new Vector4([10, 20, 30, 40]);
-  a = a.elements;
-  b = new Vector4([4, 3, 2, 1]);
-  b = b.elements;
 
-  console.log('before f', f);
-  console.log('before e', e);
-  
-  for (i=0; i<4; i++) {
-    e[i] = a[i] + b[i]
-  }
-  return e
+
+var g_eyeX = 0.20, g_eyeY = 0.25, g_eyeZ = 0.25; // Eye position
+var centerX = 0.0, centerY = 0.0, centerZ = 0.0;
+var upX = 0.0, upY = 1.0, upZ = 0.0;
+function keydown(ev, gl, n, modelMatrix, u_ModelMatrix) {
+    if(ev.keyCode == 38) { // The up key was pressed
+      console.log('u');
+      modelMatrix.translate(0, 0.01, 0);
+      gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+
+      // return rotated g_eye's with axis ec x u 
+      // return rotated up's with axis ec x u 
+    } else 
+
+    if(ev.keyCode == 40) { // The down key was pressed
+      console.log('d');
+      modelMatrix.translate(0,-0.01, 0);
+      gl.uniformMatrix4fv(u_ModelMatrix, false, modelMatrix.elements);
+      // return rotated g_eye's with axis ec x u 
+      // return rotated up's with axis ec x u 
+      
+    } else 
+
+    if(ev.keyCode == 39) { // The right arrow key was pressed
+      console.log('r');
+      // return rotated g_eye's with axis up's
+      g_eyeX += 0.01;
+
+    } else 
+    if (ev.keyCode == 37) { // The left arrow key was pressed
+      console.log('l');
+      // return rotated g_eye's with axis up's
+      g_eyeX -= 0.01;
+    } else { return; }
+    
+    draw(gl, n, modelMatrix, u_ModelMatrix);    
 }
 
-vectorA = new Vector4([1, 2, 3, 4]);
-vectorB = new Vector4([4, 3, 2, 1]);
 
-console.log('vecAdd', vecAdd(vectorA, vectorB));
+function draw(gl, n, modelMatrix, u_ModelMatrix) {
+  // Clear <canvas>
+  gl.clear(gl.COLOR_BUFFER_BIT);
 
-function vector4Add(A, B) {
-  var i, e, f, a, b, a0, a1, a2, a3;
-  
-  // Calculate e = a * b
-  f = new Vector4(4);
-  e = f.elements;
-  a = A.elements;
-  b = B.elements;
-  console.log('vec A', A);
-  console.log('vec A item', a);
-  console.log('vec B', B);
-  console.log('vec B item', b);
-  // If e equals b, copy b to temporary matrix.
-  /*if (e === b) {
-    b = new Float32Array(16);
-    for (i = 0; i < 16; ++i) {
-      b[i] = e[i];
-    }
-  }*/
-  for (i=0; i< 4; i++) {
-  console.log('inner vecAdd func, for loop');
-  console.log(i);
-  
-  console.log(vectorA.elements[i]);
-  console.log(vectorB.elements[i]);
-  }
+  // Draw three points
+  gl.drawArrays(gl.POINTS, 0, n);
 
-  //a0=a[0];  
-  a1=A.elements[1]; 
-  a2=a[2];  
-  a3=a[3];
-  b0=b[0];  b1=b[1];  b2=b[2];  b3=b[3];
-  e[0]  =  a0 + b0;
-  e[1]  =  a1 + b1;
-  e[2]  =  a2 + b2;
-  e[3]  =  a3 + b3;
-  console.log('vec e', f);
-  console.log('vec e item', f.elements);
-  return e;
-};
-
-
-
-vectorA = new Vector4([1, 2, 3, 4]);
-vectorB = new Vector4([4, 3, 2, 1]);
-
-
-
-console.log(vectorA.elements);
-console.log(typeof(vectorA.elements));
-for (i=0; i< 4; i++) {
-  console.log(i);
-
-  console.log(vectorA.elements[i]);
-  console.log(vectorB.elements[i]);
 }
-
-//console.log('vector addition', vector4Add(vectorA.elements, vectorB.elements));
