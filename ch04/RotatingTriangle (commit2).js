@@ -1,19 +1,21 @@
 // RotatingTriangle.js (c) 2012 matsuda
 // Vertex shader program
 var VSHADER_SOURCE =
-  'attribute vec4 a_Position;\n' +
   'varying vec4 u_TotTransVec;\n' +
   'varying vec4 u_TempTransVec;\n' +
-  'uniform mat4 u_ModelMatrix;\n' +
   'uniform mat4 u_TransMatrix;\n' +
 
+  'attribute vec4 a_Position;\n' +
+  'uniform mat4 u_ModelMatrix;\n' +
   'uniform mat4 u_ViewMatrix;\n' +
+  'uniform mat4 u_ProjMatrix;\n' +
 
   'attribute vec4 a_Color;\n' +
   'varying vec4 v_Color;\n' +
   'void main() {\n' +
   '  u_TotTransVec = u_TotTransVec + u_TempTransVec;\n' +
-  '  gl_Position = u_ViewMatrix * (u_ModelMatrix * a_Position + u_TransMatrix * vec4(1.0, 0.0, 0.0, 1.0));\n' +
+  '  gl_Position = u_ProjMatrix * u_ViewMatrix * u_ModelMatrix * a_Position;\n' +
+  //'  gl_Position = u_ViewMatrix * (u_ModelMatrix * a_Position + u_TransMatrix * vec4(1.0, 0.0, 0.0, 1.0));\n' +
   '  v_Color = a_Color;\n' +
   '  gl_PointSize = 10.0;\n' +
 
@@ -59,6 +61,11 @@ function main() {
 
   // Specify the color for clearing <canvas>
   gl.clearColor(0.0, 0.0, 0.0, 1.0);
+  // Enable depth test
+  gl.enable(gl.DEPTH_TEST);
+
+  // Clear color and depth buffer
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   // Get storage location of u_ModelMatrix
   var u_ModelMatrix = gl.getUniformLocation(gl.program, 'u_ModelMatrix');
@@ -86,7 +93,12 @@ function main() {
   }
 
   var u_ViewMatrix = gl.getUniformLocation(gl.program, 'u_ViewMatrix');
+  var u_ProjMatrix = gl.getUniformLocation(gl.program, 'u_ProjMatrix');
+
   var viewMatrix = new Matrix4();
+  var projMatrix = new Matrix4();  // The projection matrix
+  projMatrix.setPerspective(1, canvas.width/canvas.height, 1, 200);
+  gl.uniformMatrix4fv(u_ProjMatrix, false, projMatrix.elements);
 
   //viewMatrix.setLookAt(g_eyeX, g_eyeY, g_eyeZ, 0, 0, 0, 0, 1, 0);
   // Pass the view projection matrix
@@ -263,7 +275,7 @@ function main() {
 
   
   var tick = function() {
-    gl.clear(gl.COLOR_BUFFER_BIT)
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     //var n = initVertexBuffers2(gl, 0.75);
     //console.log('ticking');
     
