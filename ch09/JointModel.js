@@ -65,10 +65,11 @@ function main() {
   // Calculate the view projection matrix
   var viewProjMatrix = new Matrix4();
   viewProjMatrix.setPerspective(50.0, canvas.width / canvas.height, 1.0, 100.0);
-  viewProjMatrix.lookAt(20.0, 10.0, 30.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+  var zoom = 1;
+  viewProjMatrix.lookAt(20.0*zoom, 10.0*zoom, 30.0*zoom, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
 
   // Register the event handler to be called when keys are pressed
-  document.onkeydown = function(ev){ keydown(ev, gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix); };
+  document.onkeydown = function(ev){ keydown(ev, gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix, zoom); };
 
   draw(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix);  // Draw the robot arm
 }
@@ -77,7 +78,7 @@ var ANGLE_STEP = 3.0;    // The increments of rotation angle (degrees)
 var g_arm1Angle = -90.0; // The rotation angle of arm1 (degrees)
 var g_joint1Angle = 0.0; // The rotation angle of joint1 (degrees)
 
-function keydown(ev, gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix) {
+function keydown(ev, gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix, zoom) {
   switch (ev.keyCode) {
     case 38: // Up arrow key -> the positive rotation of joint1 around the z-axis
       if (g_joint1Angle < 135.0) g_joint1Angle += ANGLE_STEP;
@@ -91,6 +92,16 @@ function keydown(ev, gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix) {
     case 37: // Left arrow key -> the negative rotation of arm1 around the y-axis
       g_arm1Angle = (g_arm1Angle - ANGLE_STEP) % 360;
       break;
+    case 64 +1: // Left arrow key -> the negative rotation of arm1 around the y-axis
+      zoom += 0.01
+      console.log('zoom', zoom);
+      break;
+
+    case 64 +26: // Left arrow key -> the negative rotation of arm1 around the y-axis
+      zoom -= 0.01
+      console.log('zoom', zoom);
+      break;
+
     default: return; // Skip drawing at no effective action
   }
   // Draw the robot arm
@@ -179,8 +190,9 @@ function draw(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix) {
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   // Arm1
-  var arm1Length = 10.0; // Length of arm1
-  g_modelMatrix.setTranslate(0.0, -12.0, 0.0);
+  var arm1Length = 12.0; // Length of arm1
+  var setTransY = 0.0;
+  g_modelMatrix.setTranslate(0.0, setTransY, 0.0);
   g_modelMatrix.rotate(g_arm1Angle, 0.0, 1.0, 0.0);    // Rotate around the y-axis
   drawBox(gl, n, viewProjMatrix, u_MvpMatrix, u_NormalMatrix); // Draw
 
