@@ -6,26 +6,17 @@ var VSHADER_SOURCE =
   'attribute vec4 a_Normal;\n' +
   'uniform mat4 u_MvpMatrix;\n' +
   'uniform mat4 u_NormalMatrix;\n' +
-  
-  'uniform vec3 u_DiffuseLight;\n' +   // Diffuse light color
-  'uniform vec3 u_LightDirection;\n' + // Diffuse light direction (in the world coordinate, normalized)
-  'uniform vec3 u_AmbientLight;\n' +   // Color of an ambient light
-  
   'varying vec4 v_Color;\n' +
   'void main() {\n' +
   '  gl_Position = u_MvpMatrix * a_Position;\n' +
+  '  vec4 testVar = a_Color;\n' +
   // Shading calculation to make the arm look three-dimensional
-  //'  vec3 lightDirection = normalize(vec3(0.0, 0.5, 0.7));\n' + // Light direction
+  '  vec3 lightDirection = normalize(vec3(0.0, 0.5, 0.7));\n' + // Light direction
+  '  vec4 color = vec4(1.0, 0.4, 0.0, 1.0);\n' +
   '  vec3 normal = normalize((u_NormalMatrix * a_Normal).xyz);\n' +
-  '  float nDotL = max(dot(normal, u_LightDirection), 0.0);\n' +
+  '  float nDotL = max(dot(normal, lightDirection), 0.0);\n' +
 //  '  v_Color = vec4(color.rgb * nDotL + vec3(0.1) + a_Color.rgb, color.a);\n' +
-  //'  v_Color = vec4(a_Color.rgb * nDotL + vec3(0.1), a_Color.a);\n' +
-
-  '  vec3 diffuse = u_DiffuseLight * a_Color.rgb * nDotL;\n' +
-     // Calculate the color due to ambient reflection
-  '  vec3 ambient = u_AmbientLight * a_Color.rgb;\n' +
-     // Add the surface colors due to diffuse reflection and ambient reflection
-  '  v_Color = vec4(diffuse + ambient, a_Color.a);\n' + 
+  '  v_Color = vec4(a_Color.rgb * nDotL + vec3(0.1), color.a);\n' +
 
   '}\n';
 
@@ -70,20 +61,6 @@ function main() {
   // Get the storage locations of uniform variables
   var u_MvpMatrix = gl.getUniformLocation(gl.program, 'u_MvpMatrix');
   var u_NormalMatrix = gl.getUniformLocation(gl.program, 'u_NormalMatrix');
-  var u_LightDirection = gl.getUniformLocation(gl.program, 'u_LightDirection');
-  var u_DiffuseLight = gl.getUniformLocation(gl.program, 'u_DiffuseLight');
-  var u_AmbientLight = gl.getUniformLocation(gl.program, 'u_AmbientLight');
-
-  // Set the light color (white)
-  gl.uniform3f(u_DiffuseLight, 1.0, 1.0, 1.0);
-  // Set the light direction (in the world coordinate)
-  var lightDirection = new Vector3([0.0, 0.5, 0.7]);
-  lightDirection.normalize();     // Normalize
-  gl.uniform3fv(u_LightDirection, lightDirection.elements);
-  // Set the ambient light
-  gl.uniform3f(u_AmbientLight, 0.2, 0.2, 0.2);
-
-
   if (!u_MvpMatrix || !u_NormalMatrix) {
     console.log('Failed to get the storage location');
     return;
